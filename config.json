@@ -1,0 +1,23 @@
+{
+  "server": {
+    "ip": "0.0.0.0",
+    "port": 9666,
+    "mode": 1,
+    "settings": {
+      "worker_num": 1,
+      "daemonize": 0
+    }
+  },
+  "sites": {
+    "github": {
+        "sy-records/git-deploy": {
+          "secret": "password",
+          "ref": "refs/heads/master",
+          "event_name": "push",
+          "shells": [
+            "git -C /yourpath/git-deploy pull"
+          ]
+        }
+    }
+  }
+}
