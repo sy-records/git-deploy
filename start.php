@@ -74,17 +74,18 @@ class start
             return 'success';
         }
 
-        if (isset($this->_config['sites']['github'][$data['repository']['full_name']])) {
-            $config = $this->_config['sites']['github'][$data['repository']['full_name']];
+        $content = json_decode($data, true);
+
+        if (isset($this->_config['sites']['github'][$content['repository']['full_name']])) {
+            $config = $this->_config['sites']['github'][$content['repository']['full_name']];
         } else {
             throw new RuntimeException('config does not exist');
         }
 
-        $content = json_decode($data, true);
         list($algo, $hash) = explode('=', $signature, 2);
-        $payloadHash = hash_hmac($algo, $content, $config['secret']);
+        $payloadHash = hash_hmac($algo, $data, $config['secret']);
 
-        if ($hash === $payloadHash && $config['ref'] === $data['ref'] && $config['event_name'] === $header['x-github-event']) {
+        if ($hash === $payloadHash && $config['ref'] === $content['ref'] && $config['event_name'] === $header['x-github-event']) {
             foreach($config['shells'] as $cmd)
             {
                 Coroutine::exec($cmd);
