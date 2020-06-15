@@ -24,6 +24,7 @@ class start
     {
         $config = self::getConfig();
         $this->_config = $config;
+        var_dump($config);
         $this->_server = new Server($config['server']['ip'], $config['server']['port'], $config['server']['mode']);
         $this->_server->set($config['server']['settings']);
         $this->_server->on('workerStart', [$this, 'onWorkerStart']);
@@ -73,8 +74,8 @@ class start
             return 'success';
         }
 
-        if (isset($this->_config[$data['repository']['full_name']])) {
-            $config = $this->_config[$data['repository']['full_name']];
+        if (isset($this->_config['sites']['github'][$data['repository']['full_name']])) {
+            $config = $this->_config['sites']['github'][$data['repository']['full_name']];
         } else {
             throw new RuntimeException('config does not exist');
         }
