@@ -18,6 +18,16 @@
             "git -C /yourpath/git-deploy pull"
           ]
         }
+    },
+    "gitee": {
+        "sy-records/git-deploy": {
+          "password": "password",
+          "ref": "refs/heads/master",
+          "event_name": "push_hooks",
+          "shells": [
+            "git -C /yourpath/git-deploy pull"
+          ]
+      }
     }
   }
 }
