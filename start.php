@@ -41,18 +41,20 @@ class start
         try{
             $header = $request->header;
             $data = $request->rawContent();
+            $msg = '';
             switch($request->server['request_uri'])
             {
                 case '/github':
-                    $this->github($data, $header, $response);
+                    $msg = $this->github($data, $header, $response);
                     break;
+                default:
+                    $response->status(404);
             }
         } catch(\Throwable $e) {
             $response->status(403);
             $response->write($e->getMessage());
         }
-        $response->status(404);
-        return $response->end();
+        return $response->end($msg);
     }
 
     public function getConfig()
@@ -65,6 +67,10 @@ class start
         $signature = $header['x-hub-signature'] ?? '';
         if (!$signature) {
             goto error;
+        }
+
+        if (isset($header['x-github-event']) && $header['x-github-event'] === 'ping') {
+            return 'success';
         }
 
         if (isset($this->_config[$data['repository']['full_name']])) {
@@ -83,7 +89,7 @@ class start
                 Coroutine::exec($cmd);
             }
 
-            return $response->end('finished');
+            return 'finished';
         }
 
         error:
