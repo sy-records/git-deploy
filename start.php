@@ -7,24 +7,23 @@
  * @license  https://github.com/sy-records/git-deploy/blob/master/LICENSE
  */
 
-use Swoole\Runtime;
 use Swoole\Coroutine;
 use Swoole\Http\Server;
+use Swoole\Runtime;
 
 class start
 {
-    /** @var Server $_server */
+    public $name = 'git-deploy';
+
+    /** @var Server */
     protected $_server;
 
     protected $_config;
-
-    public $name = 'git-deploy';
 
     public function __construct()
     {
         $config = self::getConfig();
         $this->_config = $config;
-        var_dump($config);
         $this->_server = new Server($config['server']['ip'], $config['server']['port'], $config['server']['mode']);
         $this->_server->set($config['server']['settings']);
         $this->_server->on('workerStart', [$this, 'onWorkerStart']);
@@ -37,23 +36,25 @@ class start
         @cli_set_process_title($this->name . " #{$workerId}");
     }
 
-    public function onRequest(\Swoole\Http\Request $request, \Swoole\Http\Response $response)
+    public function onRequest(Swoole\Http\Request $request, Swoole\Http\Response $response)
     {
-        try{
+        try {
             $header = $request->header;
             $data = $request->rawContent();
             $msg = '';
-            switch($request->server['request_uri'])
-            {
+            switch ($request->server['request_uri']) {
                 case '/github':
-                    $msg = $this->github($data, $header, $response);
+                    $msg = $this->github($data, $header);
+                    break;
+                case '/gitee':
+                    $msg = $this->gitee($data, $header);
                     break;
                 default:
                     $response->status(404);
             }
-        } catch(\Throwable $e) {
+        } catch (\Throwable $e) {
             $response->status(403);
-            $response->write($e->getMessage());
+            $msg = $e->getMessage();
         }
         return $response->end($msg);
     }
@@ -63,13 +64,8 @@ class start
         return json_decode(file_get_contents(__DIR__ . '/config.json'), true);
     }
 
-    public function github($data, $header, $response)
+    public function github($data, $header)
     {
-        $signature = $header['x-hub-signature'] ?? '';
-        if (!$signature) {
-            goto error;
-        }
-
         if (isset($header['x-github-event']) && $header['x-github-event'] === 'ping') {
             return 'success';
         }
@@ -82,13 +78,58 @@ class start
             throw new RuntimeException('config does not exist');
         }
 
-        list($algo, $hash) = explode('=', $signature, 2);
-        $payloadHash = hash_hmac($algo, $data, $config['secret']);
+        if (isset($config['secret']) && ! empty($config['secret'])) {
+            $signature = $header['x-hub-signature'] ?? '';
+            if (! $signature) {
+                goto error;
+            }
+            [$algo, $hash] = explode('=', $signature, 2);
+            $payloadHash = hash_hmac($algo, $data, $config['secret']);
+            if ($hash !== $payloadHash) {
+                goto error;
+            }
+        }
 
-        if ($hash === $payloadHash && $config['ref'] === $content['ref'] && $config['event_name'] === $header['x-github-event']) {
-            foreach($config['shells'] as $cmd)
-            {
-                Coroutine::exec($cmd);
+        if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-github-event']) {
+            foreach ($config['shells'] as $cmd) {
+                Coroutine::create(function () use($cmd) {
+                    Coroutine::exec($cmd);
+                });
+            }
+
+            return 'finished';
+        }
+
+        error:
+        throw new RuntimeException('verification failure');
+    }
+
+    public function gitee($data, $header)
+    {
+        if (isset($header['x-gitee-ping']) && $header['x-gitee-ping'] === 'true') {
+            return 'success';
+        }
+
+        $content = json_decode($data, true);
+
+        if (isset($this->_config['sites']['gitee'][$content['project']['path_with_namespace']])) {
+            $config = $this->_config['sites']['gitee'][$content['project']['path_with_namespace']];
+        } else {
+            throw new RuntimeException('config does not exist');
+        }
+
+        if (isset($config['password']) && ! empty($config['password'])) {
+            $signature = $header['x-gitee-token'] ?? '';
+            if (! $signature || $signature !== $config['password']) {
+                goto error;
+            }
+        }
+
+        if ($config['ref'] === $content['ref'] && $config['event_name'] === $content['hook_name']) {
+            foreach ($config['shells'] as $cmd) {
+                Coroutine::create(function () use($cmd) {
+                    Coroutine::exec($cmd);
+                });
             }
 
             return 'finished';
