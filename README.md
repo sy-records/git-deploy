@@ -48,7 +48,7 @@ composer create-project sy-records/git-deploy
 
 `sites`对应的是项目的仓库等信息
 
-分为`github`和`gitee`，`key`是仓库名称
+分为`github`和`gitee`，`key`是仓库名称，支持多个仓库。
 
 * `secret`/`password`：密钥/密码；`github`使用`secret`，`gitee`使用`password`。暂不支持`gitee`的`secret`模式  
 * `ref`：分支  
@@ -75,7 +75,7 @@ composer create-project sy-records/git-deploy
         "shells": [
           "git -C /yourpath/git-deploy pull"
         ]
-    }
+      }
   }
 }
 ```
