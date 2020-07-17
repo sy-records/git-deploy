@@ -125,6 +125,19 @@ class start
             }
         }
 
+        if (isset($config['secret']) && ! empty($config['secret'])) {
+            $signature = $header['x-gitee-token'] ?? '';
+            $timestamp = $header['x-gitee-timestamp'] ?? '';
+            if (! $signature || ! $timestamp) {
+                goto error;
+            }
+            $secret_str = "$timestamp\n{$config['secret']}";
+            $compute_token = base64_encode(hash_hmac('sha256', $secret_str, $config['secret'],true));
+            if ($signature !== $compute_token) {
+                goto error;
+            }
+        }
+
         if ($config['ref'] === $content['ref'] && $config['event_name'] === $content['hook_name']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
