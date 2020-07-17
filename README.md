@@ -50,7 +50,7 @@ composer create-project sy-records/git-deploy
 
 分为`github`和`gitee`，`key`是仓库名称，支持多个仓库。
 
-* `secret`/`password`：密钥/密码；`github`使用`secret`，`gitee`使用`password`。暂不支持`gitee`的`secret`模式  
+* `secret`/`password`：密钥/密码；`github`使用`secret`，`gitee`的 WebHook 密码使用`password`，签名密钥使用`secret`
 * `ref`：分支  
 * `event_name`：事件名称；`github`为`push`，`gitee`为`push_hooks`
 * `shells`：需要执行的脚本
