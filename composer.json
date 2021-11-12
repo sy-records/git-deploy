@@ -12,5 +12,8 @@
             "name": "sy-records",
             "email": "52o@qq52o.cn"
         }
-    ]
+    ],
+    "require-dev": {
+        "swoole/ide-helper": "^4.6"
+    }
 }

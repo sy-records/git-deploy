@@ -28,6 +28,16 @@
             "git -C /yourpath/git-deploy pull"
           ]
       }
+    },
+    "gitea": {
+      "sy-records/git-deploy": {
+        "secret": "password",
+        "ref": "refs/heads/master",
+        "event_name": "push",
+        "shells": [
+          "git -C /yourpath/git-deploy pull"
+        ]
+      }
     }
   }
 }

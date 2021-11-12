@@ -9,6 +9,7 @@
 
 * [x] GitHub
 * [x] Gitee
+* [x] Gitea
 
 ## 依赖
 

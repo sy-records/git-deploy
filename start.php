@@ -49,6 +49,9 @@ class start
                 case '/gitee':
                     $msg = $this->gitee($data, $header);
                     break;
+                case '/gitea':
+                    $msg = $this->gitea($data, $header);
+                    break;
                 default:
                     $response->status(404);
             }
@@ -139,6 +142,41 @@ class start
         }
 
         if ($config['ref'] === $content['ref'] && $config['event_name'] === $content['hook_name']) {
+            foreach ($config['shells'] as $cmd) {
+                Coroutine::create(function () use($cmd) {
+                    Coroutine::exec($cmd);
+                });
+            }
+
+            return 'finished';
+        }
+
+        error:
+        throw new RuntimeException('verification failure');
+    }
+
+    public function gitea($data, $header)
+    {
+        $content = json_decode($data, true);
+
+        if (isset($this->_config['sites']['gitea'][$content['repository']['full_name']])) {
+            $config = $this->_config['sites']['gitea'][$content['repository']['full_name']];
+        } else {
+            throw new RuntimeException('config does not exist');
+        }
+
+        if (isset($config['secret']) && ! empty($config['secret'])) {
+            $hash = $header['x-gitea-signature'] ?? '';
+            if (! $hash) {
+                goto error;
+            }
+            $payloadHash = hash_hmac('sha256', $data, $config['secret']);
+            if ($hash !== $payloadHash) {
+                goto error;
+            }
+        }
+
+        if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-gitea-event']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
                     Coroutine::exec($cmd);
