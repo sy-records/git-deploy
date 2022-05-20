@@ -10,6 +10,7 @@
 * [x] GitHub
 * [x] Gitee
 * [x] Gitea
+* [x] GitLab
 
 ## 依赖
 

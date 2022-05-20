@@ -51,6 +51,8 @@ class start
                     break;
                 case '/gitea':
                     $msg = $this->gitea($data, $header);
+                case '/gitlab':
+                    $msg = $this->gitlab($data, $header);
                     break;
                 default:
                     $response->status(404);
@@ -177,6 +179,37 @@ class start
         }
 
         if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-gitea-event']) {
+            foreach ($config['shells'] as $cmd) {
+                Coroutine::create(function () use($cmd) {
+                    Coroutine::exec($cmd);
+                });
+            }
+
+            return 'finished';
+        }
+
+        error:
+        throw new RuntimeException('verification failure');
+    }
+
+    public function gitlab($data, $header)
+    {
+        $content = json_decode($data, true);
+
+        if (isset($this->_config['sites']['gitlab'][$content['repository']['name']])) {
+            $config = $this->_config['sites']['gitlab'][$content['repository']['name']];
+        } else {
+            throw new RuntimeException('config does not exist');
+        }
+
+        if (isset($config['secret']) && ! empty($config['secret'])) {
+            $token = $header['x-gitlab-token'] ?? '';
+            if (! $token || $token !== $config['secret']) {
+                goto error;
+            }
+        }
+
+        if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-gitlab-event']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
                     Coroutine::exec($cmd);
