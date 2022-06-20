@@ -77,7 +77,27 @@ composer create-project sy-records/git-deploy
         "shells": [
           "git -C /yourpath/git-deploy pull"
         ]
-      }
+    }
+  },
+  "gitea": {
+    "sy-records/git-deploy": {
+      "secret": "password",
+      "ref": "refs/heads/master",
+      "event_name": "push",
+      "shells": [
+        "git -C /yourpath/git-deploy pull"
+      ]
+    }
+  },
+  "gitlab": {
+    "git-deploy": {
+      "secret": "password",
+      "ref": "refs/heads/master",
+      "event_name": "Push Hook",
+      "shells": [
+        "git -C /yourpath/git-deploy pull"
+      ]
+    }
   }
 }
 ```
