@@ -90,10 +90,10 @@ composer create-project sy-records/git-deploy
     }
   },
   "gitlab": {
-    "git-deploy": {
+    "sy-records/git-deploy": {
       "secret": "password",
       "ref": "refs/heads/master",
-      "event_name": "Push Hook",
+      "event_name": "push",
       "shells": [
         "git -C /yourpath/git-deploy pull"
       ]

@@ -51,6 +51,7 @@ class start
                     break;
                 case '/gitea':
                     $msg = $this->gitea($data, $header);
+                    break;
                 case '/gitlab':
                     $msg = $this->gitlab($data, $header);
                     break;
@@ -80,7 +81,7 @@ class start
         if (isset($this->_config['sites']['github'][$content['repository']['full_name']])) {
             $config = $this->_config['sites']['github'][$content['repository']['full_name']];
         } else {
-            throw new RuntimeException('config does not exist');
+            throw new RuntimeException('Missing config');
         }
 
         if (isset($config['secret']) && ! empty($config['secret'])) {
@@ -120,7 +121,7 @@ class start
         if (isset($this->_config['sites']['gitee'][$content['project']['path_with_namespace']])) {
             $config = $this->_config['sites']['gitee'][$content['project']['path_with_namespace']];
         } else {
-            throw new RuntimeException('config does not exist');
+            throw new RuntimeException('Missing config');
         }
 
         if (isset($config['password']) && ! empty($config['password'])) {
@@ -164,7 +165,7 @@ class start
         if (isset($this->_config['sites']['gitea'][$content['repository']['full_name']])) {
             $config = $this->_config['sites']['gitea'][$content['repository']['full_name']];
         } else {
-            throw new RuntimeException('config does not exist');
+            throw new RuntimeException('Missing config');
         }
 
         if (isset($config['secret']) && ! empty($config['secret'])) {
@@ -199,7 +200,7 @@ class start
         if (isset($this->_config['sites']['gitlab'][$content['repository']['name']])) {
             $config = $this->_config['sites']['gitlab'][$content['repository']['name']];
         } else {
-            throw new RuntimeException('config does not exist');
+            throw new RuntimeException('Missing config');
         }
 
         if (isset($config['secret']) && ! empty($config['secret'])) {
