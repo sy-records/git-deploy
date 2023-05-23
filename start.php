@@ -96,7 +96,7 @@ class start
             }
         }
 
-        if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-github-event']) {
+        if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $header['x-github-event']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
                     Coroutine::exec($cmd);
@@ -144,7 +144,7 @@ class start
             }
         }
 
-        if ($config['ref'] === $content['ref'] && $config['event_name'] === $content['hook_name']) {
+        if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $content['hook_name']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
                     Coroutine::exec($cmd);
@@ -179,7 +179,7 @@ class start
             }
         }
 
-        if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-gitea-event']) {
+        if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $header['x-gitea-event']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
                     Coroutine::exec($cmd);
@@ -210,7 +210,7 @@ class start
             }
         }
 
-        if ($config['ref'] === $content['ref'] && $config['event_name'] === $header['x-gitlab-event']) {
+        if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $header['x-gitlab-event']) {
             foreach ($config['shells'] as $cmd) {
                 Coroutine::create(function () use($cmd) {
                     Coroutine::exec($cmd);
@@ -222,6 +222,19 @@ class start
 
         error:
         throw new RuntimeException('verification failure');
+    }
+
+    private function checkRef($setting, $ref)
+    {
+        if ($setting === '*') return true;
+        if ($setting === $ref) return true;
+
+        if (strpos($setting, '*') !== false) {
+            $pattern = str_replace('*', '.*',  preg_quote($setting));
+            return preg_match('/' . $pattern . '/', $ref);
+        }
+
+        return false;
     }
 }
 
