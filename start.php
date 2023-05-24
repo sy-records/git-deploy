@@ -77,12 +77,13 @@ class start
         }
 
         $content = json_decode($data, true);
+        $repo = $content['repository']['full_name'] ?? '';
 
-        if (isset($this->_config['sites']['github'][$content['repository']['full_name']])) {
-            $config = $this->_config['sites']['github'][$content['repository']['full_name']];
-        } else {
+        if (!isset($this->_config['sites']['github'][$repo])) {
             throw new RuntimeException('Missing config');
         }
+
+        $config = $this->_config['sites']['github'][$repo];
 
         if (isset($config['secret']) && ! empty($config['secret'])) {
             $signature = $header['x-hub-signature'] ?? '';
@@ -117,12 +118,13 @@ class start
         }
 
         $content = json_decode($data, true);
+        $repo = $content['project']['path_with_namespace'] ?? '';
 
-        if (isset($this->_config['sites']['gitee'][$content['project']['path_with_namespace']])) {
-            $config = $this->_config['sites']['gitee'][$content['project']['path_with_namespace']];
-        } else {
+        if (!isset($this->_config['sites']['gitee'][$repo])) {
             throw new RuntimeException('Missing config');
         }
+
+        $config = $this->_config['sites']['gitee'][$repo];
 
         if (isset($config['password']) && ! empty($config['password'])) {
             $signature = $header['x-gitee-token'] ?? '';
@@ -162,11 +164,13 @@ class start
     {
         $content = json_decode($data, true);
 
-        if (isset($this->_config['sites']['gitea'][$content['repository']['full_name']])) {
-            $config = $this->_config['sites']['gitea'][$content['repository']['full_name']];
-        } else {
+        $repo = $content['repository']['full_name'] ?? '';
+
+        if (!isset($this->_config['sites']['gitea'][$repo])) {
             throw new RuntimeException('Missing config');
         }
+
+        $config = $this->_config['sites']['gitea'][$repo];
 
         if (isset($config['secret']) && ! empty($config['secret'])) {
             $hash = $header['x-gitea-signature'] ?? '';
@@ -196,12 +200,13 @@ class start
     public function gitlab($data, $header)
     {
         $content = json_decode($data, true);
+        $repo = $content['repository']['name'] ?? '';
 
-        if (isset($this->_config['sites']['gitlab'][$content['repository']['name']])) {
-            $config = $this->_config['sites']['gitlab'][$content['repository']['name']];
-        } else {
+        if (!isset($this->_config['sites']['gitlab'][$repo])) {
             throw new RuntimeException('Missing config');
         }
+
+        $config = $this->_config['sites']['gitlab'][$repo];
 
         if (isset($config['secret']) && ! empty($config['secret'])) {
             $token = $header['x-gitlab-token'] ?? '';
