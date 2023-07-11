@@ -113,3 +113,19 @@ Secret/PassWord：对应`config.json`中的`secret/password`
 ```shell
 php start.php
 ```
+
+### systemd
+
+```conf
+[Unit]
+Description=Git Depoly Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/php /workspace/git-deploy/start.php
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
