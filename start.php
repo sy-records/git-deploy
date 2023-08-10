@@ -235,7 +235,7 @@ class start
         if ($setting === $ref) return true;
 
         if (strpos($setting, '*') !== false) {
-            $pattern = str_replace('*', '.*',  preg_quote($setting));
+            $pattern = str_replace('*', '.*', preg_quote($setting));
             return preg_match('/' . $pattern . '/', $ref);
         }
 

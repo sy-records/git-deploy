@@ -1,19 +1,17 @@
 {
-    "name": "sy-records/git-deploy",
-    "description": "Using WebHooks to automatically pull code.",
-    "type": "project",
-    "require": {
-        "php": ">=7.1",
-        "ext-swoole": ">=4.0"
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "sy-records",
-            "email": "52o@qq52o.cn"
-        }
-    ],
-    "require-dev": {
-        "swoole/ide-helper": "^4.6"
+  "name": "sy-records/git-deploy",
+  "description": "Using WebHooks to automatically pull code.",
+  "type": "project",
+  "require": {
+    "php": ">=7.1",
+    "ext-swoole": ">=4.0",
+    "ext-json": "*"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "sy-records",
+      "email": "52o@qq52o.cn"
     }
+  ]
 }
