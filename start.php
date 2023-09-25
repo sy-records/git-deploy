@@ -98,12 +98,7 @@ class start
         }
 
         if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $header['x-github-event']) {
-            foreach ($config['shells'] as $cmd) {
-                Coroutine::create(function () use($cmd) {
-                    Coroutine::exec($cmd);
-                });
-            }
-
+            $this->exec($config['shells'], $repo);
             return 'finished';
         }
 
@@ -147,12 +142,7 @@ class start
         }
 
         if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $content['hook_name']) {
-            foreach ($config['shells'] as $cmd) {
-                Coroutine::create(function () use($cmd) {
-                    Coroutine::exec($cmd);
-                });
-            }
-
+            $this->exec($config['shells'], $repo);
             return 'finished';
         }
 
@@ -184,12 +174,7 @@ class start
         }
 
         if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $header['x-gitea-event']) {
-            foreach ($config['shells'] as $cmd) {
-                Coroutine::create(function () use($cmd) {
-                    Coroutine::exec($cmd);
-                });
-            }
-
+            $this->exec($config['shells'], $repo);
             return 'finished';
         }
 
@@ -216,12 +201,7 @@ class start
         }
 
         if ($this->checkRef($config['ref'], $content['ref']) && $config['event_name'] === $header['x-gitlab-event']) {
-            foreach ($config['shells'] as $cmd) {
-                Coroutine::create(function () use($cmd) {
-                    Coroutine::exec($cmd);
-                });
-            }
-
+            $this->exec($config['shells'], $repo);
             return 'finished';
         }
 
@@ -240,6 +220,18 @@ class start
         }
 
         return false;
+    }
+
+    protected function exec($shells, $repo)
+    {
+        foreach ($shells as $cmd) {
+            Coroutine::create(function () use($cmd, $repo) {
+                $result = Coroutine::exec($cmd);
+                if ($result['code'] !== 0) {
+                    throw new RuntimeException($result['output']);
+                }
+            });
+        }
     }
 }
 
