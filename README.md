@@ -15,7 +15,7 @@
 ## 依赖
 
 * php >= 7.1
-* ext-swoole
+* ext-swoole （可以直接使用 [swoole-cli](https://github.com/swoole/swoole-src/releases/latest)）
 
 ## 安装
 
